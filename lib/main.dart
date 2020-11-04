@@ -119,7 +119,7 @@ class __MyHomePageState extends State<_MyHomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Toggle chart'),
+                Text('Toggle Chart'),
                 Switch(
                     value: _showChart,
                     onChanged: (val) {
