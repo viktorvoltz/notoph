@@ -11,9 +11,9 @@ class TransactionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 430,
       child: transactions.isEmpty
-          ? Column(
+          ? LayoutBuilder(builder: (ctx, constraints) {
+            return Column(
               children: <Widget>[
                 Text(
                   'no transactions yet',
@@ -23,12 +23,13 @@ class TransactionList extends StatelessWidget {
                   height: 20,
                 ),
                 Container(
-                    height: 200,
+                    height: constraints.maxHeight * 0.7,
                     child: Image.asset(
                         'assets/images/Overprint-MKBHD-logo-5k-desktop-wallpaper.png',
                         fit: BoxFit.cover)),
               ],
-            )
+            );
+          },) 
           : ListView.builder(
               itemBuilder: (ctx, index) {
                 return Card(

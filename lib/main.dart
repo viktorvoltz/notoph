@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import './widgets/new_transaction.dart';
 import './widgets/transaction_list.dart';
 import './models/transaction.dart';
 import './widgets/chart.dart';
 
-
 void main() {
+  // WidgetsFlutterBinding.ensureInitialized();
+  // SystemChrome.setPreferredOrientations(
+  //    [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   runApp(MyApp());
 }
 
@@ -21,7 +24,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.green,
         accentColor: Colors.amber,
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        
       ),
       home: _MyHomePage(),
     );
@@ -45,6 +47,8 @@ class __MyHomePageState extends State<_MyHomePage> {
     ),*/
   ];
 
+  bool _showChart = false;
+
   List<Transaction> get _recentTransactions {
     return _userTransaction.where((tx) {
       return tx.date.isAfter(
@@ -55,7 +59,8 @@ class __MyHomePageState extends State<_MyHomePage> {
     }).toList();
   }
 
-  void _addNewTransaction(String txTitle, double txamount, DateTime chosenDate) {
+  void _addNewTransaction(
+      String txTitle, double txamount, DateTime chosenDate) {
     final newTx = Transaction(
         title: txTitle,
         amount: txamount,
@@ -79,7 +84,7 @@ class __MyHomePageState extends State<_MyHomePage> {
         });
   }
 
-  void _deleteTransaction(String id){
+  void _deleteTransaction(String id) {
     setState(() {
       _userTransaction.removeWhere((element) => element.id == id);
     });
@@ -87,23 +92,54 @@ class __MyHomePageState extends State<_MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    final appBar = AppBar(
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: () => _startAddNewTransaction(context),
+        )
+      ],
+    );
+
+    final txListWidget = Container(
+        height: (MediaQuery.of(context).size.height -
+                appBar.preferredSize.height -
+                MediaQuery.of(context).padding.top) *
+            0.7,
+        child: TransactionList(_userTransaction, _deleteTransaction));
+
     return Scaffold(
-      appBar: AppBar(
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () => _startAddNewTransaction(context),
-          )
-        ],
-      ),
+      appBar: appBar,
       body: ListView(
         scrollDirection: Axis.vertical,
         children: [
+          if (isLandscape)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Toggle chart'),
+                Switch(
+                    value: _showChart,
+                    onChanged: (val) {
+                      setState(() {
+                        _showChart = val;
+                      });
+                    })
+              ],
+            ),
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Chart(_recentTransactions),
-              TransactionList(_userTransaction, _deleteTransaction),
+              _showChart
+                  ? Container(
+                      height: (MediaQuery.of(context).size.height -
+                              appBar.preferredSize.height -
+                              MediaQuery.of(context).padding.top) *
+                          0.7,
+                      child: Chart(_recentTransactions))
+                  : txListWidget,
             ],
           ),
         ],
@@ -115,5 +151,3 @@ class __MyHomePageState extends State<_MyHomePage> {
     );
   }
 }
-
-
